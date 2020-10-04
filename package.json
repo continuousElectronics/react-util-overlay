@@ -15,7 +15,9 @@
   "keywords": [
     "overlay",
     "react",
-    "hooks"
+    "hooks",
+    "react context",
+    "context"
   ],
   "author": "wjs",
   "license": "MIT",

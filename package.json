@@ -2,7 +2,8 @@
   "name": "@react-util/overlay",
   "version": "0.0.0",
   "description": "overlays in a provider can be controlled anywhere in embedded component",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc"

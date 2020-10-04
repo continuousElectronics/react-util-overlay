@@ -1,9 +1,9 @@
 .eslintignore
 .eslintrc
 .prettierrc
-index.tsx
 tsconfig.json
 .github
 .releaserc.json
 readme.md
-!index.js
+src
+!dist

@@ -4,7 +4,7 @@ Create overlays with the state controlled by any component embedded at any level
 
 ## Example Usage
 
-### The outer most element you want the overlays appended to
+### The outermost element you want the overlays appended to
 
 ```javascript
 import Header from "components/Header";
@@ -55,7 +55,7 @@ const SubComponent = ({ children }) => {
   return (
     <section>
       <div>the popup is {active ? "" : "not"} active</div>
-      <button onClick={() => setActive(false)}>open overlay</button>
+      <button onClick={() => setActive(true)}>open overlay</button>
     </sectopm>
   );
 };

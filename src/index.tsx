@@ -1,9 +1,10 @@
 import * as React from "react";
 
-type FnCmp = ({ close }: { close: () => void }) => JSX.Element;
+export type CmpProps = Record<string, any>;
+type FnCmp = (componentProps: any) => JSX.Element;
 type SetActive = React.Dispatch<React.SetStateAction<boolean>>;
 type StatePair = [boolean, SetActive];
-type Overlay = [FnCmp, boolean, SetActive];
+type Overlay = [FnCmp, boolean, SetActive, CmpProps];
 interface ProviderProps {
   children?: React.ReactNode;
 }
@@ -12,9 +13,11 @@ const OverlayContext = React.createContext({
   createOverlay: (
     Cmp: FnCmp,
     initActive: boolean,
-    setActive: SetActive
+    setActive: SetActive,
+    cmpProps: CmpProps
   ): void => undefined,
-  updateOverlay: (Cmp: FnCmp, active: boolean): void => undefined,
+  updateOverlay: (Cmp: FnCmp, active: boolean, cmpProps: CmpProps): void =>
+    undefined,
   removeOverlay: (Cmp: FnCmp): void => undefined
 });
 
@@ -24,16 +27,22 @@ export const OverlayProvider = (props: ProviderProps): JSX.Element => {
   const createOverlay = (
     Cmp: FnCmp,
     initActive: boolean,
-    setActive: SetActive
+    setActive: SetActive,
+    cmpProps: CmpProps
   ) => {
-    setOverlays((overlays) => [...overlays, [Cmp, initActive, setActive]]);
+    setOverlays((overlays) => [
+      ...overlays,
+      [Cmp, initActive, setActive, cmpProps]
+    ]);
   };
   const removeOverlay = (Cmp: FnCmp) => {
     setOverlays((overlays) => overlays.filter(([C]) => C !== Cmp));
   };
-  const updateOverlay = (Cmp: FnCmp, active: boolean) => {
+  const updateOverlay = (Cmp: FnCmp, active: boolean, cmpProps: CmpProps) => {
     setOverlays((overlays) =>
-      overlays.map(([C, ac, s]) => (C === Cmp ? [C, active, s] : [C, ac, s]))
+      overlays.map(([C, ac, s]) =>
+        C === Cmp ? [C, active, s, cmpProps] : [C, ac, s, cmpProps]
+      )
     );
   };
 
@@ -42,10 +51,10 @@ export const OverlayProvider = (props: ProviderProps): JSX.Element => {
       value={{ createOverlay, removeOverlay, updateOverlay }}
     >
       {children}
-      {overlays.map(([Cmp, active, setActive], idx) => {
+      {overlays.map(([Cmp, active, setActive, cmpProps], idx) => {
         return active ? (
           <React.Fragment key={idx}>
-            <Cmp close={() => setActive(false)} />
+            <Cmp close={() => setActive(false)} {...cmpProps} />
           </React.Fragment>
         ) : null;
       })}
@@ -53,21 +62,23 @@ export const OverlayProvider = (props: ProviderProps): JSX.Element => {
   );
 };
 
-export const useOverlay = (Cmp: FnCmp, initState = false): StatePair => {
-  const [active, setActive] = React.useState(initState);
-  const overlayContext = React.useContext(OverlayContext);
+export const createOverlay = (Cmp: FnCmp) => {
+  return (cmpProps: CmpProps = {}, initState = false): StatePair => {
+    const [active, setActive] = React.useState(initState);
+    const overlayContext = React.useContext(OverlayContext);
 
-  React.useEffect(() => {
-    overlayContext.createOverlay(Cmp, initState, setActive);
+    React.useEffect(() => {
+      overlayContext.createOverlay(Cmp, initState, setActive, cmpProps);
 
-    return () => {
-      overlayContext.removeOverlay(Cmp);
-    };
-  }, []);
+      return () => {
+        overlayContext.removeOverlay(Cmp);
+      };
+    }, []);
 
-  React.useEffect(() => {
-    overlayContext.updateOverlay(Cmp, active);
-  }, [active]);
+    React.useEffect(() => {
+      overlayContext.updateOverlay(Cmp, active, cmpProps);
+    }, [active, JSON.stringify(cmpProps)]);
 
-  return [active, setActive];
+    return [active, setActive];
+  };
 };

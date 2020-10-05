@@ -32,25 +32,32 @@ export default Layout;
 // react-remove-scroll is nice to use if you would like to remove the scroll on the overlay
 import { RemoveScroll } from "react-remove-scroll";
 // use the hook to control the state
-import { useOverlay } from "@react-util/overlay";
+import { createOverlay } from "@react-util/overlay";
 
 // your component will be called with the prop "close" which is a function that closes the overlay
 // opening the overlay puts it in the virtual dom, closing it removes it from the virtual dom
 // for transitions / animations you can use css animations in conjuntion with onAnimationEnd calling close()
-const Overlay = ({ close }) => {
+const Overlay = ({ close, additionalProp }) => {
   return (
     // Note: RemoveScroll is optional. It is nice to lock scroll on an overlay, but not required.
     // This library only takes care of placing / removing the overlay in the virtual dom, nothing else.
     <RemoveScroll className="byo-styles">
       <button onClick={() => close()}>close overlay</button>
+      <div>consume {additionalProp}</div>
     </RemoveScroll>
   );
 };
 
+// call the create function to get the hook for that instance to use.
+// always do this outside the a component, since different instances rely on references.
+const useOverlay = createOverlay(Overlay);
+
 const SubComponent = ({ children }) => {
-  // first argument is the component
+  // first argument is additional props you want forwarded to the overlay
   // section optional argument is intitial active state of overlay defaulting to false
-  const [active, setActive] = useOverlay(Overlay);
+  const [active, setActive] = useOverlay({
+    additionalProp: "more stuff"
+  });
 
   return (
     <section>
